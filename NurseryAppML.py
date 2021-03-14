@@ -49,7 +49,6 @@ orig_data = list(assessment)
 testvol = 0.9 # Vary this < value gives higher acc
 label_train, label_test, orig_data_train, orig_data_test = sortdata(labels,orig_data,testvol)
 
-print(label_test)
 # Identify optimal K for model
 k = range(3,101,2)
 best = 0
@@ -64,14 +63,4 @@ for knn in k:
             pickle.dump(NurseryAppMLMod,temp)
     print('Best K:',knn_best, 'Acc:',best,'K:',knn, 'Acc:',acc)
 
-NurseryAppMLMod_in = open("NurseryAppML.pickle","rb") # Load in model with best accuracy
-NurseryAppMLMod = pickle.load(NurseryAppMLMod_in) 
-
-predicted = NurseryAppMLMod.predict(label_test)
-
-# Define sublabels for original data
-names = ["very_recom","recommended", "priority", "not_recom"]
-
-# Visualise prediction accuracy
-for x in range(len(orig_data_test)):
-    print("Predicted:", names[predicted[x]], "Actual: ", names[orig_data_test[x]])
+print('Optimal K:', knn_best)
