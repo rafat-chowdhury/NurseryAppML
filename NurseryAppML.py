@@ -1,10 +1,13 @@
+# Import libraries
 import pandas as pd 
 import numpy as np 
+import pickle
 import sklearn
 from sklearn.utils import shuffle
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import linear_model, preprocessing
 
+# Define some basic functions
 def readInAndCheckData(filename):
     data = pd.read_csv(filename)
     print(data.head())
@@ -46,10 +49,25 @@ orig_data = list(assessment)
 testvol = 0.9 # Vary this < value gives higher acc
 label_train, label_test, orig_data_train, orig_data_test = sortdata(labels,orig_data,testvol)
 
-# Train model and pass through test data
-k = 7 # Need to optimise this
-model,acc = trainKNNmodel(label_train,orig_data_train,label_test,orig_data_test,k)
-predicted = model.predict(label_test)
+print(label_test)
+# Identify optimal K for model
+k = range(3,101,2)
+best = 0
+knn_best = 0
+
+for knn in k:
+    NurseryAppMLMod,acc = trainKNNmodel(label_train,orig_data_train,label_test,orig_data_test,knn)
+    if (acc / 1.05) > best: # Store model via pickle if the accuracy is better than previous iterations
+        best = acc
+        knn_best = knn
+        with open("NurseryAppML.pickle","wb") as temp:
+            pickle.dump(NurseryAppMLMod,temp)
+    print('Best K:',knn_best, 'Acc:',best,'K:',knn, 'Acc:',acc)
+
+NurseryAppMLMod_in = open("NurseryAppML.pickle","rb") # Load in model with best accuracy
+NurseryAppMLMod = pickle.load(NurseryAppMLMod_in) 
+
+predicted = NurseryAppMLMod.predict(label_test)
 
 # Define sublabels for original data
 names = ["very_recom","recommended", "priority", "not_recom"]
